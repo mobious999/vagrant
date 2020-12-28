@@ -1,0 +1,221 @@
+   #config.vm.provision "shell", path: "script.sh"
+	 #configure all necessary software#
+	 #install cloud init
+     #sudo ​yum -y install cloud-init
+	 #install net utils
+	 #sudo yum -y install net-tools
+	 #utility for unpacking zip files
+     #sudo yum -y install unzip
+	 #install python3
+	 #sudo yum -y install python3 python3-pip
+	 #update pip3 
+	 #sudo pip3 install --upgrade pip
+	 #install base dns utilities 
+	 #sudo yum -y install bind-utils
+	 #install git client to be able to clone repositories
+	 #sudo yum -y install git
+	 #install chrony for time synchronization
+	 #sudo yum -y install chrony
+	 #install wget
+	 #sudo yum -y install wget
+	 #install install epel-release
+	 #sudo yum -y install epel-release
+	 #install ansible 
+	 #sudo pip3 install ansible - old command 
+	 #sudo yum -y install ansible
+	 #install the aws cli
+	 #sudo curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+	 #unzip awscli-bundle.zip
+	 #sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+	 #install the ssm agent
+	 #sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+	 #sudo systemctl enable amazon-ssm-agent
+	 #sudo systemctl start amazon-ssm-agent
+	 #install the cloudwatch agent	
+	 #sudo yum -y install https://s3.amazonaws.com/amazoncloudwatch-agent/centos/amd64/latest/amazon-cloudwatch-agent.rpm
+	 #install the cloudwatch logs agent
+	 #sudo yum install -y awslogs
+	 #sudo service awslogs start
+	 #sudo chkconfig awslogs on
+	 #update the system to the current as of this date
+	 #sudo yum -y update
+	 ##########################################################################################################
+	 #configure the hostname
+	 #sudo hostnamectl set-hostname Wellfleet
+	 ##########################################################################################################
+	 #add standard users and groups 
+	 #add the radius disabled group
+	 #sudo groupadd radius-disabled
+	 #add the radius testuser and set a password
+	 #sudo su
+	 #sudo useradd testuser
+     #echo "testpass" | passwd --stdin testuser
+	 #logout
+	 ###########################################################################################################
+	 #install sssd requirements
+	 #sudo yum install -y sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation #openldap-clients policycoreutils-python -y
+	 ###########################################################################################################
+	 #configure the firewall rules if the firewall is enabled
+	 #sudo firewall-cmd --zone=public --add-port=123/udp
+	 #sudo firewall-cmd -–zone=public -–add-port=1812/udp
+	 #sudo firewall-cmd -–zone=public -–add-port=1813/udp
+	 #sudo firewall-cmd --permanent --zone=public --add-port=123/udp
+	 #sudo firewall-cmd -–permanent --zone=public -–add-port=1812/udp
+	 #sudo firewall-cmd -–permanent --zone=public -–add-port=1813/udp
+	 #firewall-cmd --reload
+	 ##########################################################################################################
+	 #configure the jenkins user
+	 #begin jenkins node configuration
+	 #sudo yum -y install java-1.8.0-openjdk
+	 #sudo su
+	 #sudo useradd -d /var/lib/jenkins jenkins
+	 #echo "jenkins" | passwd --stdin jenkins
+	 #logout
+	 #begin the configuration of the jenkins ssh 
+	 #ssh-keygen -t rsa -C "Jenkins agent key"
+	 #cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+	 #chmod 600 ~/.ssh/authorized_keys
+	 #logout
+	 #exit
+	 ##########################################################################################################
+	 #Disable ipv6 - working
+	 #echo 'modified on ' $(date) | sudo tee -a /etc/sysctl.conf
+	 #echo 'net.ipv6.conf.all.disable_ipv6 = 1' | sudo tee -a /etc/sysctl.conf
+	 #echo 'net.ipv6.conf.default.disable_ipv6 = 1' | sudo tee -a /etc/sysctl.conf
+	 #echo 'net.ipv6.conf.eth0.disable_ipv6 = 1' | sudo tee -a /etc/sysctl.conf
+	 #echo 'net.ipv6.conf.lo.disable_ipv6 = 1' | sudo tee -a /etc/sysctl.conf
+	 ##########################################################################################################
+	 #configure dns search domains - working
+	 #sudo cp /etc/resolv.conf /etc/resolv.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #sudo nmcli con mod "System eth0" ipv4.dns-search "us-east-2.compute.internal aws07.wfl.cloud dev.wfl.cloud qa.wfl.cloud uat.wfl.cloud prod.wfl.cloud wfl.cloud wfdev.local wfprod.local medpro.com healthpn.com" #works after reboot
+	 #restart network service for changes to take affect
+	 #sudo systemctl restart network.service
+	 #lab notes
+	 #for lab 10.0.2.16 / wfdev.local
+	 #sudo nmcli connection modify "System eth0" ipv4.dns "10.0.2.15"
+	 #sudo systemctl restart network.service
+	 ##########################################################################################################
+	 #configure chrony - working
+	 #backup chrony configuration files
+	 #sudo cp /etc/chrony.conf /etc/chrony.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #sudo sed -e '/server 0.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 #sudo sed -e '/server 1.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 #sudo sed -e '/server 2.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 #sudo sed -e '/server 3.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 #echo '#Add Aws Server' $(date) | sudo tee -a /etc/chrony.conf
+	 #echo '#modified on ' $(date) | sudo tee -a /etc/chrony.conf
+	 #echo 'server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4' | sudo tee -a /etc/chrony.conf
+	 #sudo sed '/*3.centos*/ a\server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4' /etc/chrony.conf #not working
+	 #sudo systemctl start chronyd
+	 #sudo systemctl enable chronyd
+	 ########################################################################################################### 
+	 #backup freeradius files first (working)
+	 #sudo cp /etc/raddb/sites-enabled/default /etc/raddb/sites-enabled/default.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #sudo cp /etc/raddb/clients.conf /etc/raddb/clients.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #sudo cp /etc/raddb/users /etc/raddb/users.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #sudo cp /etc/raddb/radiusd.conf /etc/raddb/radiusd.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #Perform freeradius configuration - working
+	 #Change authentication mode to use pam - 
+     #sudo sed -i "s/^#\\tpam/\\tpam/" /etc/raddb/sites-enabled/default 
+	 ########################################################################################################### 
+	 #Create a symbolic link to the configuration file - working
+	 #sudo ln -s /etc/raddb/mods-available/pam /etc/raddb/mods-enabled/pam 
+ 	 ########################################################################################################### 
+	 #Add client configuration to client.conf, ipaddr should be ip address of domain controllers
+	 #sudo vi /etc/raddb/clients.conf
+	 #client virtualbox-nat {
+     #  ipaddr          = 10.0.2.0/24
+     #  secret          = testing123
+     #  require_message_authenticator = no
+     #  nas_type = other
+	 # }
+	 #echo '#Add Aws Network for Authentication' | sudo tee -a /etc/raddb/clients.conf
+	 #echo '#modified on ' $(date) | sudo tee -a /etc/raddb/clients.conf
+	 #echo 'client virtualbox-nat {' | sudo tee -a /etc/raddb/clients.conf
+	 #echo '  	ipaddr          = 10.0.2.0/24' | sudo tee -a /etc/raddb/clients.conf
+	 #echo '  	secret          = testing123' | sudo tee -a /etc/raddb/clients.conf
+	 #echo '  	require_message_authenticator = no' | sudo tee -a /etc/raddb/clients.conf
+	 #echo '  	nas_type = other' | sudo tee -a /etc/raddb/clients.conf
+	 #echo '}' | sudo tee -a /etc/raddb/clients.conf
+	 ###########################################################################################################  
+	 #Update default authentication type
+	 #sudo vi /etc/raddb/users
+	 #DEFAULT Group == "radius-disabled", Auth-Type := Reject
+	 #Reply-Message = "Your account has been disabled."
+	 #DEFAULT Auth-Type := PAM
+	 #sudo sed -i '/Auth-Type := Reject/s/^#//g' /etc/raddb/users #removes the comment from the line
+	 #sudo sed -i '/Your account has been disabled/s/^#//g' /etc/raddb/users #removes the comment from the line
+	 #have to manually add this line after
+	 #sudo sed '/Reply-Message = "Your account has been disabled*/ a\DEFAULT Auth-Type := PAM' /etc/raddb/users #append the line 
+	 ########################################################################################################### 
+     #configure the user that the radius server runs under #must run under root
+	 #must be there to allow access to google authenticator - yeck
+	 #sudo vi /etc/raddb/radiusd.conf - working
+	 #sed -i 's/user\ =\ radiusd/user\ =\ root/; s/group\ =\ radiusd/group\ =\ root/' /etc/raddb/radiusd.conf	 #working 
+	 #start freeradius
+	 #sudo systemctl status radiusd
+	 #sudo systemctl start radiusd
+	 #sudo systemctl enable radiusd
+	 #sudo systemctl restart radiusd
+	 ########################################################################################################### 
+	 #test local user authentication
+	 #Start Freeradius  in debug mode sudo radiusd -X
+	 #to test authentication - radtest testuser testpass localhost 0 testing123
+	 ###########################################################################################################
+	 #join the domain
+	 #create a domain service account for autojoining to the domain
+	 #realm join wfdev.local
+	 ###########################################################################################################
+	 #test authentication
+	 #radtest administrator@wfdev.local Password123 localhost 0 testing123
+	 #should come back with - Received Access-Accept Id 29 from 127.0.0.1:1812 to 0.0.0.0:0 length 20
+	 ###########################################################################################################
+	 #install google authenticator module
+	 #sudo yum -y install pam-devel make gcc-c++ git automake autoconf libtool 
+	 #change to home directory
+	 #cd ~ 
+	 #begin the google authenticator install
+	 #git clone https://github.com/google/google-authenticator-libpam.git
+	 #cd ~/google-authenticator-libpam/ 
+	 #./bootstrap.sh
+	 #./configure 
+	 #make 
+	 #make install 
+	 #change to the home directory and the proceed with the user creation
+	 #cd ~ 
+	 #su - administrator@wfdev.local
+	 #generate google authenticator code
+	 #google-authenticator 
+	 ###########################################################################################################
+	 #Configure plugin authentication module (Pam)
+	 #backup the file before configuration
+	 #sudo su
+	 #sudo cp /etc/pam.d/radiusd /etc/pam.d/radiusd.$(date '+%Y-%m-%d,%H:%M:%S') 
+	 #sudo vi /etc/pam.d/radiusd 
+	 #comment out the first 5 lines and then add these lines
+	 #%PAM-1.0
+	 #auth       include     password-auth
+	 #account    required    pam_nologin.so
+	 #account    include     password-auth
+	 #password   include     password-auth
+	 #session    include     password-auth
+	 #sudo sed -e '/account    required    pam_nologin.so/ s/^#*/#/' -i /etc/pam.d/radiusd #comment out the lines 
+	 #sudo sed -e '/account    include     password-auth/ s/^#*/#/' -i /etc/pam.d/radiusd #comment out the lines 
+	 #sudo sed -e '/password   include     password-auth/ s/^#*/#/' -i /etc/pam.d/radiusd #comment out the lines 
+	 #sudo sed -e '/session    include     password-auth/ s/^#*/#/' -i /etc/pam.d/radiusd #comment out the lines 
+	 #example
+	 #https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/managing_smart_cards/pam_configuration_files
+	 #module_interface     control_flag     module_name module_arguments
+	 #auth       requisite    /usr/local/lib/security/pam_google_authenticator.so forward_pass #path to google authenticator module
+	 #auth       required     pam_sss.so use_first_pass #pam_sss - PAM module for SSSD
+	 #account    required     pam_nologin.so
+	 #account    include      password-auth
+	 #session    include      password-auth
+	 #echo 'Add Pam moudles Network for Authentication' | sudo tee -a /etc/pam.d/radiusd
+	 #echo 'modified on ' $(date) | sudo tee -a /etc/pam.d/radiusd
+	 #echo 'auth       requisite    /usr/local/lib/security/pam_google_authenticator.so forward_pass #path to google authenticator module' | sudo tee -a /etc/pam.d/radiusd
+	 #echo 'auth       required     pam_sss.so use_first_pass' | sudo tee -a /etc/pam.d/radiusd
+	 #echo 'account    include      password-auth' | sudo tee -a /etc/pam.d/radiusd
+	 #echo 'session    include      password-auth' | sudo tee -a /etc/pam.d/radiusd
+     #Test FreeRADIUS with SSSD & Google Authenticator   
+     #radtest administrator@wfdev.local Password123<36865> localhost 0 testing123	 

@@ -1,0 +1,207 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  config.vm.box = "centos/7"
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  # config.vm.box_check_update = false
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # NOTE: This will enable public access to the opened port
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+  #   vb.memory = "1024"
+  # end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+  # documentation for more information about their specific syntax and use.
+  config.vm.provision "shell", inline: <<-SHELL
+	 #basic provisioning for aws 
+     sudo ​yum -y install cloud-init
+	 #install net utils
+	 sudo yum -y install net-tools
+	 #utility for unpacking zip files
+     sudo yum -y install unzip
+	 #install python3
+	 sudo yum -y install python3 python3-pip
+	 #update pip3 
+	 sudo pip3 install --upgrade pip
+	 #install ansible 
+	 sudo pip3 install ansible
+	 #install base dns utilities 
+	 sudo yum -y install bind-utils
+	 #install git client to be able to clone repositories
+	 sudo yum -y install git
+	 #install chrony for time synchronization
+	 sudo yum -y install chrony
+	 #install wget
+	 sudo yum -y install wget
+	 #install the aws cli
+	 sudo curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+	 unzip awscli-bundle.zip
+	 sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+	 #install the ssm agent
+	 sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+	 sudo systemctl enable amazon-ssm-agent
+	 sudo systemctl start amazon-ssm-agent
+	 #install the cloudwatch agent	
+	 sudo yum -y install https://s3.amazonaws.com/amazoncloudwatch-agent/centos/amd64/latest/amazon-cloudwatch-agent.rpm
+	 #update the system to the current as of this date
+	 sudo yum -y update
+	 #install freeradius
+	 sudo yum -y install freeradius freeradius-utils
+	 #configure all necessary software#
+	 ##########################################################################################################
+	 #configure the hostname
+	 sudo hostnamectl set-hostname Wellfleet
+	 #add standard users and groups 
+	 #add the radius disabled group
+	 sudo groupadd radius-disabled
+	 #add the radius testuser and set a password
+	 sudo su
+	 useradd testuser
+     echo "testpass" | passwd --stdin testuser
+	 #configure dns search domains
+	 sudo cp /etc/resolv.conf /etc/resolv.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #sudo nmcli con mod "System eth0" ipv4.dns-search "us-east-2.compute.internal aws07.wfl.cloud dev.wfl.cloud qa.wfl.cloud uat.wfl.cloud prod.wfl.cloud wfl.cloud wfdev.local wfprod.local medpro.com healthpn.com" #works after reboot
+	 sudo nmcli con mod "System eth0" ipv4.dns-search "wfdev.local"
+     sudo nmcli con mod "System eth0" ipv4.dns "10.0.2.15, 10.0.2.3"
+     sudo service network-manager restart
+	 ##########################################################################################################
+	 #configure chrony
+	 sudo cp /etc/chrony.conf /etc/chrony.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 sudo sed -e '/server 0.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 sudo sed -e '/server 1.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 sudo sed -e '/server 2.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 sudo sed -e '/server 3.centos.pool.ntp.org iburst/ s/^#*/#/' -i /etc/chrony.conf #comment out the lines 
+	 #sudo sed '/*3.centos*/ a\server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4' /etc/chrony.conf #not working
+	 sudo systemctl start chronyd
+	 sudo systemctl enable chronyd
+	 #configure disable ipv6
+	 #sysctl -a | grep disable | grep ipv6
+	 #sudo vi /etc/sysctl.conf
+	 #disable ipv6
+	 #net.ipv6.conf.all.disable_ipv6 = 1
+     #net.ipv6.conf.default.disable_ipv6 = 1
+     #net.ipv6.conf.eth0.disable_ipv6 = 1
+     #net.ipv6.conf.lo.disable_ipv6 = 1
+	 #sysctl -w net.ipv6.conf.all.disable_ipv6=1
+	 #sysctl -w net.ipv6.conf.default.disable_ipv6=1
+	 ########################################################################################################### 
+	 #backup freeradius files first (working)
+	 sudo cp /etc/raddb/sites-enabled/default /etc/raddb/sites-enabled/default.$(date '+%Y-%m-%d,%H:%M:%S')
+	 sudo cp /etc/raddb/clients.conf /etc/raddb/clients.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 sudo cp /etc/raddb/users /etc/raddb/users.$(date '+%Y-%m-%d,%H:%M:%S')
+	 sudo cp /etc/raddb/radiusd.conf /etc/raddb/radiusd.conf.$(date '+%Y-%m-%d,%H:%M:%S')
+	 #Perform freeradius configuration
+	 #Change authentication mode to use pam - validate
+     #sudo sed -i "s/^#\\tpam/\\tpam/" /etc/raddb/sites-enabled/default #working 
+	 ########################################################################################################### 
+	 #Create a symbolic link to the configuration file
+	 #sudo ln -s /etc/raddb/mods-available/pam /etc/raddb/mods-enabled/pam #working 
+ 	 ########################################################################################################### 
+
+	 #Add client configuration to client.conf, ipaddr should be ip address of domain controllers
+	 #client virtualbox-nat {
+     #  ipaddr          = 10.0.2.0/24
+     #  secret          = testing123-1
+     #  require_message_authenticator = no
+     #  nas_type = other
+	 # }
+	 
+	 #vi /etc/raddb/clients.conf
+	 #client dockernet {
+     #   ipaddr = 10.51.0.0/16 (subnet of the domain controllers)
+     #   secret = secret123
+     #   require_message_authenticator = no
+     #   nas_type = other
+	 #}
+	 ###########################################################################################################  
+	 #Update default authentication type
+	 #sudo vi /etc/raddb/users
+	 #DEFAULT Group == "radius-disabled", Auth-Type := Reject
+	 #Reply-Message = "Your account has been disabled."
+	 #DEFAULT Auth-Type := PAM
+
+	 #sudo sed -i '/Auth-Type := Reject/s/^#//g' /etc/raddb/users
+	 #sudo sed -i '/Your account has been disabled/s/^#//g' /etc/raddb/users
+	 #sudo sed '/Reply-Message = "Your account has been disabled*/ a\DEFAULT Auth-Type := PAM' /etc/raddb/users #append the line 
+	 ########################################################################################################### 
+     #configure the user that the radius server runs under #must run under root
+	 #sed -i 's/user\ =\ radiusd/user\ =\ root/; s/group\ =\ radiusd/group\ =\ root/' /etc/raddb/radiusd.conf	 #working 
+	 ########################################################################################################### 
+	 #test authentication
+	 #Start Freeradius  in debug mode sudo radiusd -X
+	 #to test authentication - radtest  testuser testpass localhost 0 testing123
+
+	 ###########################################################################################################
+	 #configure the firewall rules if the firewall is enabled
+	 #sudo firewall-cmd --zone=public --add-port=123/udp
+	 #sudo firewall-cmd -–zone=public -–add-port=1812/udp
+	 #sudo firewall-cmd -–zone=public -–add-port=1813/udp
+	 #sudo firewall-cmd --permanent --zone=public --add-port=123/udp
+	 #sudo firewall-cmd -–permanent --zone=public -–add-port=1812/udp
+	 #sudo firewall-cmd -–permanent --zone=public -–add-port=1813/udp
+	 #firewall-cmd --reload
+	 #start the system
+	 #sudo systemctl status radiusd
+	 #sudo systemctl start radiusd
+	 #sudo systemctl enable radiusd
+	 #sudo systemctl restart radiusd
+	 ###########################################################################################################
+	 #yum install sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python -y
+	 #sudo yum -y install sssd realmd adcli
+	 #sudo yum -y install oddjob oddjob-mkhomedir sssd samba-c
+	 #install google authenticator module
+	 #sudo yum -y install pam-devel make gcc-c++ git
+
+  SHELL
+end
