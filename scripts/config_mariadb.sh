@@ -1,5 +1,13 @@
 #!/bin/bash
 #add required utilities
-#utility for unpacking zip files
-echo "****** Installing Unzip ******"
-sudo yum install unzip -y
+echo "****** Configuring MariaDb for Linotp ******"
+mysql_secure_installation <<EOF
+
+y
+secret
+secret
+y
+y
+y
+y
+EOF

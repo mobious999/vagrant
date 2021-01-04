@@ -1,3 +1,10 @@
 #!/bin/bash
 #install wget
-sudo yum install wget -y 
+realm join wfdev.local
+Password for Administrator:
+
+#requirements for the domain
+# create a new user
+# password never expires
+# accountname jointodomain
+# password 
