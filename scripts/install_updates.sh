@@ -1,4 +1,4 @@
 #!/bin/bash
 #update all software#
-echo "****** Installing Unzip ******"
-sudo yum -y update
+echo "****** Installing All Updates ******"
+sudo yum update -y

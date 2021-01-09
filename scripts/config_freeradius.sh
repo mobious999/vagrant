@@ -7,6 +7,59 @@ sudo cp /etc/raddb/users /etc/raddb/users.$(date '+%Y-%m-%d,%H:%M:%S')
 sudo cp /etc/raddb/radiusd.conf /etc/raddb/radiusd.conf.$(date '+%Y-%m-%d,%H:%M:%S')
 #Perform freeradius configuration - working
 ###########################################################################################################
+#This section configures the secret key for pam authentication for the subnets defined
+#The first confiuration sets up localhost so that it can authenticate for testing
+#The second configuration represents the networks that will be used for authentication 
+sudo cat << 'EOF' > /etc/raddb/clients.conf
+client localhost {
+        ipaddr  = 127.0.0.1
+        netmask = 32            
+        secret  = 'SECRET' 
+}
+
+client adconnector {
+        ipaddr  = <ip-range-of-ad-connector>
+        netmask = <netmask-bit>            
+        secret  = 'SECRET' 
+}
+EOF
+cd \home\vagrant
+sudo git clone https://github.com/LinOTP/linotp-auth-freeradius-perl.git /usr/share/linotp/linotp-auth-freeradius-perl
+
+#This section sets up freeradius for perl authentication
+sudo cat << 'EOF' > /etc/raddb/mods-available/perl
+perl {
+     filename = /usr/share/linotp/linotp-auth-freeradius-perl/radius_linotp.pm
+}
+EOF
+
+# Activate it by creating a symbolic link to the module
+sudo ln -s /etc/raddb/mods-available/perl /etc/raddb/mods-enabled/perl
+
+# freeradius linotp perl config
+# The realm from below is the realm defined in the linotp software - 
+sudo cat << 'EOF' > /etc/linotp2/rlm_perl.ini
+URL=https://localhost/validate/simplecheck
+REALM=<your-realm>
+Debug=True
+SSL_CHECK=False
+EOF
+
+# Remove unnecessary configuration files to make sure that only one site is enabled from the configuration from above
+#remove the ability to do inner tunnel requests
+sudo rm /etc/raddb/sites-enabled/inner-tunnel
+#remove the default site
+sudo rm /etc/raddb/sites-enabled/default
+#remove eap authentication 
+sudo rm /etc/raddb/mods-enabled/eap 
+
+# Activate the freeradius linotp virtual host
+sudo cp /usr/local/ADConnector-MFA/linotp /etc/raddb/sites-available/
+sudo ln -s /etc/raddb/sites-available/linotp /etc/raddb/sites-enabled/linotp
+
+
+
+#old configuration left for example
 #Change authentication mode to use pam - 
 #sudo sed -i "s/^#\\tpam/\\tpam/" /etc/raddb/sites-enabled/default - suspect
 ###########################################################################################################
