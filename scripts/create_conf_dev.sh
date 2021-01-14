@@ -1,7 +1,8 @@
 #!/bin/bash
 #creating the appdynamics configuration files for java and the machine agent
 
-cat << 'EOF' > /opt/appdynamics/javaagent/conf/controller-info.xml<controller-info>
+cat << 'EOF' > /opt/appdynamics/javaagent/conf/controller-info.xml
+<controller-info>
 
     <!--  For detailed information on the ways you can configure the Java Agent
     and configuration order of precedence, see:
@@ -154,7 +155,8 @@ cat << 'EOF' > /opt/appdynamics/javaagent/conf/controller-info.xml<controller-in
 
 </controller-info>
 EOF
-cat << 'EOF' > /opt/appdynamics/machine-agent/conf/controller-info.xml<?xml version="1.0" encoding="UTF-8"?>
+cat << 'EOF' > /opt/appdynamics/machine-agent/conf/controller-info.xml
+<?xml version="1.0" encoding="UTF-8"?>
 <controller-info>
     <!-- For more detailed information on different configurations that an agent can support and the respective rules,
     consult the online documentation. In general, configuration properties may be set in different ways. Here is the
