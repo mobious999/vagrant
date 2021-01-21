@@ -3,3 +3,4 @@
 #install and configure chrony
 echo "****** Installing Chrony ******"
 sudo yum install chrony  -y
+echo "****** Done Installing Chrony ******"
