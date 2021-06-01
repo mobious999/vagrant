@@ -10,6 +10,6 @@ echo '#Add Aws Server' $(date) | sudo tee -a /etc/chrony.conf
 echo '#modified on ' $(date) | sudo tee -a /etc/chrony.conf
 echo 'server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4' | sudo tee -a /etc/chrony.conf
 #sudo sed '/*3.centos*/ a\server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4' /etc/chrony.conf #not working
-sudo systemctl restart chronyd
+sudo systemctl start chronyd
 sudo systemctl enable chronyd
 sudo chronyc makestep

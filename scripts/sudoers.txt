@@ -1,0 +1,56 @@
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl start dxp.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl status dxp.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl stop dxp.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl restart dxp.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl start tomcat.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl status tomcat.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl stop tomcat.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl restart tomcat.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl start solr.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl status solr.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl stop solr.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl restart solr.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl start zookeeper.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl status zookeeper.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl stop zookeeper.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl restart zookeeper.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl start cbdaemon.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl status cbdaemon.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl stop cbdaemon.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl restart cbdaemon.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl start nessusagent.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl status nessusagent.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl stop nessusagent.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl restart nessusagent.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl start cisco-amp.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl status cisco-amp.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl stop cisco-amp.service
+eis             ALL=(ALL)       NOPASSWD: /bin/systemctl restart cisco-amp.service
+
+
+
+
+
+
+
+
+Not working for jenkings job all must be using systemctl
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cbdaemon start
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cbdaemon status
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cbdaemon stop
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cbdaemon restart
+eis             ALL=(ALL)       NOPASSWD: /sbin/service nessusagent start
+eis             ALL=(ALL)       NOPASSWD: /sbin/service nessusagent status
+eis             ALL=(ALL)       NOPASSWD: /sbin/service nessusagent stop
+eis             ALL=(ALL)       NOPASSWD: /sbin/service nessusagent restart
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cisco-amp start
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cisco-amp status
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cisco-amp stop
+eis             ALL=(ALL)       NOPASSWD: /sbin/service cisco-amp restart
+								NOPASSWD:/bin/myCommand
+How to backup and edit sudoers
+sudo cp /etc/sudoers /etc/sudoers.backup2
+sudo visudo
+
+How to recover from sudoers issues.
+sudo rm -rfv /etc/sudoers && sudo mv /etc/sudoers.backup /etc/sudoers

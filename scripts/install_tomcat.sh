@@ -9,7 +9,8 @@ sudo wget https://ftp.wayne.edu/apache/tomcat/tomcat-9/v9.0.41/bin/apache-tomcat
 sudo tar -xf apache-tomcat-9.0.41.tar.gz
 sudo mv apache-tomcat-9.0.41 /opt/tomcat/
 sudo sudo ln -s /opt/tomcat/apache-tomcat-9.0.41 /opt/tomcat/latest
-sudo chown -R tomcat: /opt/tomcat
+sudo chown -R tomcat /opt/tomcat
+#sudo chown -R tomcat:tomcat /opt/tomcat only use if there's a tomcat group
 sudo sh -c 'chmod +x /opt/tomcat/latest/bin/*.sh'
 #sudo vi /etc/systemd/system/tomcat.service
 sudo su
