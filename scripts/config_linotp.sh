@@ -8,7 +8,7 @@ sudo restorecon -Rv /var/log/linotp
 sudo linotp-create-mariadb
 # Lock python-repoze-who version
 sudo yum install yum-plugin-versionlock -y
-sudo yum versionlock python-repoze-who
+sudo yum versionlock python-repoze-who -y
 # Install apache and vhost config
 sudo yum install LinOTP_apache -y
 sudo systemctl enable httpd

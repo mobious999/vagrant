@@ -57,8 +57,6 @@ sudo rm /etc/raddb/mods-enabled/eap
 sudo cp /usr/local/ADConnector-MFA/linotp /etc/raddb/sites-available/
 sudo ln -s /etc/raddb/sites-available/linotp /etc/raddb/sites-enabled/linotp
 
-
-
 #old configuration left for example
 #Change authentication mode to use pam - 
 #sudo sed -i "s/^#\\tpam/\\tpam/" /etc/raddb/sites-enabled/default - suspect
